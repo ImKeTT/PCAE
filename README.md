@@ -1,4 +1,4 @@
-## PCAE: A Framework of Plug-in Conditional Auto-Encoder for Controllable Text Generation
+# PCAE: A Framework of Plug-in Conditional Auto-Encoder for Controllable Text Generation
 
 Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Auto-Encoder for Controllable Text Generation](https://www.sciencedirect.com/science/article/pii/S0950705122008942)*, published in *Knowledge-Based Systems*. We provide PCAE as well as all implemented baselines (PPVAE and Optimus) under pre-trained BART.
 
@@ -6,14 +6,14 @@ Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Au
 
 
 
-### News
+## News
 
 - [2022-9-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
 - [2022-9-27] We release our PCAE and baseline codes under pre-trained BART setup.
 - [2022-9-06] Our work PCAE is [available](https://www.sciencedirect.com/science/article/pii/S0950705122008942) online.
 - [2022-8-21] Our paper PCAE is accepted by *Knowledge-Based Systems*.
 
-### Setup
+## Setup
 
 Make sure you have installed
 
@@ -24,7 +24,7 @@ torch
 numpy
 ```
 
-### Dataset
+## Dataset
 
 We conduct five tasks span from three datasets: *Yelp review*, *Titles* and *Yahoo Question*. 
 
@@ -32,9 +32,9 @@ We provide our full processed datasets in [BaiduPan](https://pan.baidu.com/s/11v
 
 You can also try your own data, follow the split in `data` folder. Note that, for PPVAE, you have to manually split negative samples for every control signal.
 
-### Training
+## Training
 
-#### Stage 1 BART VAE Finetuning
+### Stage 1 BART VAE Finetuning
 
 Finetuning on three datasets. (choose DATA from `yelp`, `yahoo`, `titles`, and EPOCH from 8, 10, 10):
 
@@ -50,7 +50,7 @@ python train.py --run_mode vae_ft --dataset $DATA --zmanner hidden\
 
 ![acc_results](pics/acc_results.jpg)
 
-#### Stage 2.1 PCAE Plug-in Training
+### Stage 2.1 PCAE Plug-in Training
 
 Plug-in training of PCAE. Choose arguments below:
 
@@ -76,7 +76,7 @@ python train.py --run_mode pcae --task $TASK --zmanner hidden\
         --layer_num $NUM_LAYER --lr 1e-4 --use_mean
 ```
 
-#### Stage 2.2 PPVAE Plug-in Training
+### Stage 2.2 PPVAE Plug-in Training
 
 Plug-in training of PPVAE BART. Choose arguments below:
 
@@ -99,7 +99,7 @@ python train.py --run_mode ppvae --task $TASK --zmanner hidden\
         --task_label $TASK_LABEL --lr 1e-4 --ppvae_dim_bottle 25
 ```
 
-#### Stage 2.3 Optimus_{bart} Plug-in Finetuning
+### Stage 2.3 Optimus_{bart} Plug-in Finetuning
 
 Plug-in fine-tuning of Optimus under BART setup. Choose arguments below:
 
@@ -118,7 +118,7 @@ python train.py --run_mode optimus --task $TASK --zmanner hidden\
         --lr 1e-4
 ```
 
-### Others
+## Others
 
 Please email me or open an issue if you have further questions.
 
