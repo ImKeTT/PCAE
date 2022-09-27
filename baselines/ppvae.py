@@ -2,7 +2,10 @@ from tqdm import tqdm
 import torch.nn as nn
 import torch
 from torch.nn import CrossEntropyLoss
-
+import torch.nn.functional as F
+import sys
+sys.path.append("../")
+from utils import *
 
 class PPVAE(nn.Module):
     def __init__(self, Vae, config, device):

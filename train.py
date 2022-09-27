@@ -12,8 +12,6 @@ from logger import Logger
 import datetime, math, os, sys, json, argparse, time, re, copy
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
-cdir = '/data/tuhq/.cache/torch/transformers'
 parser = argparse.ArgumentParser()
 ## data preparation
 parser.add_argument("--dataset", default='', type=str, required=False, choices=["yelp", "yahoo", "titles"],
@@ -45,9 +43,11 @@ parser.add_argument("--plugin_train_epochs", default=20, type=int, help="Trainin
 parser.add_argument("--fb_mode", default=1, type=int, help="Free bit threshold mode.")
 parser.add_argument("--layer_num", default=10, type=int, help="Broadcasting Layer Number of PCAE.")
 parser.add_argument("--dim_target_kl", default=0.1, type=float, help="KL thresh for each dimension in VAE.")
-parser.add_argument("--gen_k", default=500, type=int, help="Number of sentence to generate.")
+parser.add_argument("--gen_k", default=100, type=int, help="Number of batch sentence to generate.")
 parser.add_argument("--task", default='sentiment', type=str, choices=['sentiment', 'tense', 'topics', 'quess_s', 'quess'])
 parser.add_argument("--task_label", default='pos', type=str, help="For PPVAE only")
+parser.add_argument("--ppvae_dim_bottle", default=25, type=int, help="For PPVAE only")
+parser.add_argument("--ppvae_loss_relax", default=10, type=float, help="For PPVAE only")
 parser.add_argument("--sample_n", default=100, type=int, help="Number of training instance for each class for training.")
 
 parser.add_argument("--run_mode", default='pcae', type=str, choices=['vae_ft', 'ppvae', 'pcae', 'optimus'])
@@ -124,8 +124,8 @@ def VAE_finetuning(args):
     if gpu: torch.cuda.manual_seed(args.seed); torch.cuda.manual_seed_all(args.seed)
 
     ## 'facebook/bart-base'
-    tokenizer = BartTokenizer.from_pretrained(args.bart_version, cache_dir=cdir)
-    model = BartForConditionalGeneration.from_pretrained(args.bart_version, cache_dir=cdir)
+    tokenizer = BartTokenizer.from_pretrained(args.bart_version)
+    model = BartForConditionalGeneration.from_pretrained(args.bart_version)
     model.to(device)
 
     # epos = [8, 10, 10]
@@ -223,8 +223,8 @@ def Optimus_plugin_fintuning(args):
     config.epoch=args.plugin_train_epochs ## 28
     config.gen_k = args.gen_k ## 100
 
-    tokenizer = BartTokenizer.from_pretrained(args.bart_version, cache_dir=cdir)
-    model = BartForConditionalGeneration.from_pretrained(args.bart_version, cache_dir=cdir)
+    tokenizer = BartTokenizer.from_pretrained(args.bart_version)
+    model = BartForConditionalGeneration.from_pretrained(args.bart_version)
 
     vae = VAE(model.model.encoder, model.model.decoder, tokenizer, config, device)
     state = torch.load(f"checkpoints/{dataset}/BART/best_val_vae_hidden.pt")
@@ -244,7 +244,7 @@ def Optimus_plugin_fintuning(args):
 
     optimizer = AdamW(model.parameters(), lr=config.lr, correct_bias=True)
     os.makedirs(f"bart_result/optimus/results/{dataset}", exist_ok=True)
-    log_file = f"bart_result/optimus/results/{dataset}/{task}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{ns}.log"
+    log_file = f"bart_result/optimus/results/{dataset}/{args.task}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{args.sample_n}.log"
     logger = Logger(log_file)
 
     ## Model training
@@ -303,7 +303,7 @@ def Optimus_plugin_fintuning(args):
                 else:
                     continue
             finalsents.extend(texts)
-        with open(f"bart_result/optimus/sentences/{dataset}/{args.task}/{y}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{ns}-{config.gen_k}K.txt", "w") as f:
+        with open(f"bart_result/optimus/sentences/{dataset}/{args.task}/{y}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{args.sample_n}-{config.gen_k}K.txt", "w") as f:
             for sent in finalsents:
                 f.write(sent + "\n")
         f.close()
@@ -359,8 +359,8 @@ def PPVAE_plugin_training(args):
     config.dim_bottle=args.ppvae_dim_bottle ## 25
     config.relax=args.ppvae_loss_relax ## 10.0
 
-    tokenizer = BartTokenizer.from_pretrained(args.bart_version, cache_dir=cdir)
-    model = BartForConditionalGeneration.from_pretrained(args.bart_version, cache_dir=cdir)
+    tokenizer = BartTokenizer.from_pretrained(args.bart_version)
+    model = BartForConditionalGeneration.from_pretrained(args.bart_version)
 
     vae = VAE(model.model.encoder, model.model.decoder, tokenizer, config, device)
     state = torch.load(f"checkpoints/{dataset}/BART/best_val_vae_hidden.pt")
@@ -376,14 +376,14 @@ def PPVAE_plugin_training(args):
     model = PPVAE(vae, config, device)
     model.to(device)
 
-    traindata = readtxt(config.train)
-    negtraindata = readtxt(config.neg_train)
+    traindata = read_txt(config.train)
+    negtraindata = read_txt(config.neg_train)
     trainloader = DataLoader(traindata, batch_size=args.train_batch_size, pin_memory=True, drop_last=False, num_workers=args.workers, shuffle=True)
     neg_trainloader = DataLoader(negtraindata, batch_size=args.train_batch_size, pin_memory=True, drop_last=False, num_workers=args.workers, shuffle=True)
 
     optimizer = AdamW(model.parameters(), lr=config.lr, correct_bias=True)
     os.makedirs(f"bart_result/ppvae/results/{dataset}", exist_ok=True)
-    log_file = f"bart_result/ppvae/results/{dataset}/{args.task}-{args.task_label}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{ns}.log"
+    log_file = f"bart_result/ppvae/results/{dataset}/{args.task}-{args.task_label}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{args.sample_n}.log"
     logger = Logger(log_file)
 
     model.train()
@@ -432,9 +432,9 @@ def PPVAE_plugin_training(args):
             losses_rec.append(loss_rec.detach().cpu().numpy())
             losses_kl.append(loss_kl.detach().cpu().numpy())
             
-        logger.info("Train Loss         : {:.4f}".format(np.mean(losses)))
-        logger.info("Train Loss z Rec: {:.4f}".format(np.mean(losses_z_rec)))
-        logger.info("Train Loss Rec  : {:.4f}".format(np.mean(losses_rec)))
+        logger.info("Train Loss       : {:.4f}".format(np.mean(losses)))
+        logger.info("Train Loss z Rec : {:.4f}".format(np.mean(losses_z_rec)))
+        logger.info("Train Loss Rec   : {:.4f}".format(np.mean(losses_rec)))
         logger.info("Train Loss KL.   : {:.4f}".format(np.mean(losses_kl)))
         total_iters += 1
 
@@ -454,7 +454,7 @@ def PPVAE_plugin_training(args):
             else:
                 continue
         finalsents.extend(texts)
-    with open(f"bart_result/ppvae/sentences/{dataset}/{args.task}/{args.task_label}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{ns}-{config.gen_k}K-alpha{config.alpha}.txt", "w") as f:
+    with open(f"bart_result/ppvae/sentences/{dataset}/{args.task}/{args.task_label}-epoch{config.epoch}-bs{args.train_batch_size}-lr{config.lr}-ns{args.sample_n}-{config.gen_k}K-alpha{config.alpha}.txt", "w") as f:
         for sent in finalsents:
             f.write(sent + "\n")
     f.close()
@@ -488,8 +488,8 @@ def PCAE_plugin_training(args):
     config.epoch=args.plugin_train_epochs ## 28
     config.gen_k = args.gen_k ## 100
 
-    tokenizer = BartTokenizer.from_pretrained(args.bart_version, cache_dir=cdir)
-    model = BartForConditionalGeneration.from_pretrained(args.bart_version, cache_dir=cdir)
+    tokenizer = BartTokenizer.from_pretrained(args.bart_version)
+    model = BartForConditionalGeneration.from_pretrained(args.bart_version)
 
     vae = VAE(model.model.encoder, model.model.decoder, tokenizer, config, device)
     state = torch.load(f"checkpoints/{dataset}/BART/best_val_vae_hidden.pt")
@@ -552,6 +552,7 @@ def PCAE_plugin_training(args):
     for y in range(config.class_num):
         model.eval()
         finalsents = []
+        ## iteratively generate controllable texts
         for _ in tqdm(range(config.gen_k)):
             z = torch.randn(args.gen_batch_size, config.dim_z).to(device)
             with torch.no_grad():

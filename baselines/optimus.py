@@ -11,6 +11,11 @@ from tqdm import tqdm
 import torch.nn as nn
 import torch
 from torch.nn import CrossEntropyLoss
+import torch.nn.functional as F
+import sys
+sys.path.append("../")
+from utils import *
+
 
 class Optimus(nn.Module):
     def __init__(self, Vae, config, device, layer_num=5):
@@ -34,7 +39,7 @@ class Optimus(nn.Module):
         for param in self.vae.decoder.parameters():
             param.requires_grad = False
             
-    def generate(self, z, y, top_k=50, top_p=0.5, temperature=1.0):
+    def generate(self, z, y, top_k=10, top_p=0.5, temperature=1.0):
         num_samples = z.size(0)
         y = torch.tensor(y, device=self.device)
         label = F.one_hot(y.squeeze(0).long(), self.config.class_num).float().to(self.device)

@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset, DataLoader
 import torch
 import numpy as np
-
+import torch.nn.functional as F
 
 
 def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float("Inf")):

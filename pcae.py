@@ -2,6 +2,8 @@ from vae import VAE
 import torch.nn as nn
 import torch
 from torch.nn import CrossEntropyLoss
+import torch.nn.functional as F
+from utils import *
 
 
 class BroadcastingNet(nn.Module):
@@ -37,7 +39,6 @@ class PCAE(nn.Module):
         self.label_emb = nn.Linear(config.class_num, config.dim_label)
         self.config = config
         self.freeze_encoder()
-#         self.freeze_decoder()
         
     def freeze_encoder(self):
         for param in self.vae.encoder.parameters():
@@ -46,7 +47,7 @@ class PCAE(nn.Module):
         for param in self.vae.decoder.parameters():
             param.requires_grad = False
             
-    def generate(self, z, y, top_k=50, top_p=0.5, temperature=1.0):
+    def generate(self, z, y, top_k=10, top_p=0.5, temperature=1.0):
         num_samples = z.size(0)
         labels = torch.full([num_samples, 1], y).to(self.device)
         labels = torch.stack([torch.eye(self.config.class_num)[label.squeeze(0)].to(self.device) for label in labels])

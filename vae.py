@@ -10,6 +10,7 @@ Modified from https://github.com/ChunyuanLI/Optimus/blob/master/code/examples/bi
 import torch.nn as nn
 import torch
 from torch.nn import CrossEntropyLoss
+import torch.nn.functional as F
 
 
 class BartPooler(nn.Module):
