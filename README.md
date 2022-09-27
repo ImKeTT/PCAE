@@ -38,7 +38,7 @@ You can also try your own data, follow the split in `data` folder. Note that, fo
 
 Finetuning on three datasets. (choose DATA from `yelp`, `yahoo`, `titles`, and EPOCH from 8, 10, 10):
 
-```bash
+```shell
 DATA=yelp
 EPOCH=8
 python train.py --run_mode vae_ft --dataset $DATA --zmanner hidden\
@@ -64,7 +64,7 @@ Plug-in training of PCAE. Choose arguments below:
 
 + EPOCH: 10 to 20 is fine, less SAMPLE_N means less EPOCH required
 
-```bash
+```shell
 TASK=sentiment
 EPOCH=10
 SAMPLE_N=100
@@ -87,7 +87,7 @@ Plug-in training of PPVAE BART. Choose arguments below:
 
 For example, if you want to train PPVAE to generate **positive** sentences in sentiment task with 100 training samples per class, run:
 
-```bash
+```shell
 TASK=sentiment
 EPOCH=10
 SAMPLE_N=100
@@ -107,7 +107,7 @@ Plug-in fine-tuning of Optimus under BART setup. Choose arguments below:
 + SAMPLE_N: [100, 300, 500, 800, 1000]
 + EPOCH: 10 to 20 is fine, less SAMPLE_N means less EPOCH required
 
-```bash
+```shell
 TASK=sentiment
 EPOCH=10
 SAMPLE_N=100
@@ -124,7 +124,7 @@ Please email me or open an issue if you have further questions.
 
 if you find our work useful, please cite the paper and star the repo~ :)
 
-```latex
+```bibtex
 @article{tu2022pcae,
   title={PCAE: A framework of plug-in conditional auto-encoder for controllable text generation},
   author={Tu, Haoqin and Yang, Zhongliang and Yang, Jinshuai and Zhang, Siyu and Huang, Yongfeng},
