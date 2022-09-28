@@ -28,7 +28,12 @@ numpy
 
 We conduct five tasks span from three datasets: *Yelp review*, *Titles* and *Yahoo Question*. 
 
-We provide our full processed datasets in [BaiduPan](https://pan.baidu.com/s/11vEqD_liL_U8brCEC6Nohg?pwd=bx81) with password `bx81`. Please download `data.zip` and unzip it to replace the empty `data` folder.
+We provide our full processed datasets in:
+
+-  [BaiduPan](https://pan.baidu.com/s/11vEqD_liL_U8brCEC6Nohg?pwd=bx81) (password `bx81`) 
+- [OneDrive](https://drive.google.com/file/d/1XDHN3rbXhl-dc_cqIFsQCd01pr6BiQjn/view?usp=sharing)
+
+Please download `data.zip` and unzip it to the current folder.
 
 You can also try your own data, follow the split in `data` folder. Note that, for PPVAE, you have to manually split negative samples for every control signal.
 
@@ -42,8 +47,8 @@ Finetuning on three datasets. (choose DATA from `yelp`, `yahoo`, `titles`, and E
 DATA=yelp
 EPOCH=8
 python train.py --run_mode vae_ft --dataset $DATA --zmanner hidden\
-				--gpu 0 1 --dim_z 128 --per_gpu_train_batch_size 64\
-        --train_epochs $EPOCH --fb_mode 1 --lr 5e-4
+--gpu 0 1 --dim_z 128 --per_gpu_train_batch_size 64\
+--train_epochs $EPOCH --fb_mode 1 --lr 5e-4
 ```
 
 
@@ -71,9 +76,9 @@ SAMPLE_N=100
 NUM_LAYER=10
 
 python train.py --run_mode pcae --task $TASK --zmanner hidden\
-				--gpu 0 --dim_z 128 --per_gpu_train_batch_size 64\
-        --plugin_train_epochs $EPOCH --fb_mode 1 --sample_n $SAMPLE_N\
-        --layer_num $NUM_LAYER --lr 1e-4 --use_mean
+--gpu 0 --dim_z 128 --per_gpu_train_batch_size 5\
+--plugin_train_epochs $EPOCH --fb_mode 1 --sample_n $SAMPLE_N\
+--layer_num $NUM_LAYER --lr 1e-4 --use_mean
 ```
 
 ### Stage 2.2 PPVAE Plug-in Training
@@ -94,14 +99,14 @@ SAMPLE_N=100
 TASK_LABEL=pos
 
 python train.py --run_mode ppvae --task $TASK --zmanner hidden\
-				--gpu 0 --dim_z 128 --per_gpu_train_batch_size 64\
-        --plugin_train_epochs $EPOCH --fb_mode 1 --sample_n $SAMPLE_N\
-        --task_label $TASK_LABEL --lr 1e-4 --ppvae_dim_bottle 25
+--gpu 0 --dim_z 128 --per_gpu_train_batch_size 5\
+--plugin_train_epochs $EPOCH --fb_mode 1 --sample_n $SAMPLE_N\
+--task_label $TASK_LABEL --lr 1e-4 --ppvae_dim_bottle 25
 ```
 
 ### Stage 2.3 Optimus_{bart} Plug-in Finetuning
 
-Plug-in fine-tuning of Optimus under BART setup. Choose arguments below:
+Plug-in finetuning of Optimus under BART setup. Choose arguments below:
 
 + TASK: [sentiment,  tense,  topics, quess_s, quess] 
 + SAMPLE_N: [100, 300, 500, 800, 1000]
@@ -113,9 +118,9 @@ EPOCH=10
 SAMPLE_N=100
 
 python train.py --run_mode optimus --task $TASK --zmanner hidden\
-				--gpu 0 --dim_z 128 --per_gpu_train_batch_size 64\
-        --plugin_train_epochs $EPOCH --fb_mode 1 --sample_n $SAMPLE_N\
-        --lr 1e-4
+--gpu 0 --dim_z 128 --per_gpu_train_batch_size 5\
+--plugin_train_epochs $EPOCH --fb_mode 1 --sample_n $SAMPLE_N\
+--lr 1e-4
 ```
 
 ## Others
