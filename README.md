@@ -8,10 +8,11 @@ Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Au
 
 ## News
 
-- [2022-9-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
-- [2022-9-27] We release our PCAE and baseline codes under pre-trained BART setup.
-- [2022-9-06] Our work PCAE is [available](https://www.sciencedirect.com/science/article/pii/S0950705122008942) online.
-- [2022-8-21] Our paper PCAE is accepted by *Knowledge-Based Systems*.
+- [2022-10-10] Our paper is available on [arXiv](https://arxiv.org/abs/2210.03496) now.
+- [2022-09-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
+- [2022-09-27] We release our PCAE and baseline codes under pre-trained BART setup.
+- [2022-09-06] Our work PCAE is [available](https://www.sciencedirect.com/science/article/pii/S0950705122008942) online.
+- [2022-08-21] Our paper PCAE is accepted by *Knowledge-Based Systems*.
 
 ## Setup
 
