@@ -10,7 +10,7 @@ Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Au
 
 - [2022-10-10] Our paper is available on [arXiv](https://arxiv.org/abs/2210.03496) now.
 - [2022-09-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
-- [2022-09-27] We release our PCAE and baseline codes under pre-trained BART setup.
+- [2022-09-27] We release our PCAE and baseline codes under the setup of pre-trained BART.
 - [2022-09-06] Our work PCAE is [available](https://www.sciencedirect.com/science/article/pii/S0950705122008942) online.
 - [2022-08-21] Our paper PCAE is accepted by *Knowledge-Based Systems*.
 
@@ -126,7 +126,7 @@ python train.py --run_mode optimus --task $TASK --zmanner hidden\
 
 ## Others
 
-Please email me or open an issue if you have further questions.
+Please [email](tuisaac163@gmail.com) me or open an issue if you have further questions.
 
 if you find our work useful, please cite the paper and star the repo~ :)
 
@@ -135,10 +135,11 @@ if you find our work useful, please cite the paper and star the repo~ :)
   title={PCAE: A framework of plug-in conditional auto-encoder for controllable text generation},
   author={Tu, Haoqin and Yang, Zhongliang and Yang, Jinshuai and Zhang, Siyu and Huang, Yongfeng},
   journal={Knowledge-Based Systems},
+  volume={256},
   pages={109766},
   year={2022},
   publisher={Elsevier}
 }
 ```
 
-We thank open sourced codes related to VAEs and plug-and-play models, which inspired our work !!
+We thank open sourced codes related to VAEs and plug-and-play models, which inspired our work!!
