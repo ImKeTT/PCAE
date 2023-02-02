@@ -52,6 +52,9 @@ parser.add_argument("--sample_n", default=100, type=int, help="Number of trainin
 
 parser.add_argument("--run_mode", default='pcae', type=str, choices=['vae_ft', 'ppvae', 'pcae', 'optimus'])
 
+parser.add_argument('--first_token_pooling', action='store_true', 
+    help='Use the first token as the pooling signal in VAE, else the mean pooling.')
+
 
 
 ## Data setup details for PCAE plugin training

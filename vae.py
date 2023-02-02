@@ -14,14 +14,18 @@ import torch.nn.functional as F
 
 
 class BartPooler(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, first_token_pooling=True):
         super(BartPooler, self).__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
+        self.first_token_pooling = first_token_pooling
 
     def forward(self, hidden_states):
-        first_token_tensor = hidden_states.mean(-1)
-        pooled_output = self.dense(first_token_tensor)
+        if self.first_token_pooling:
+            pooled_token_tensor = hidden_states[:, 0]
+        else:
+            pooled_token_tensor = hidden_states.mean(1)
+        pooled_output = self.dense(pooled_token_tensor)
         pooled_output = self.activation(pooled_output)
         return pooled_output
 
@@ -33,7 +37,7 @@ class VAE(nn.Module):
         self.decoder = decoder
         self.tokenizer = tokenizer
         self.config = self.decoder.config
-        self.pooler = BartPooler(self.config)
+        self.pooler = BartPooler(self.config, args.first_token_pooling)
         
         padding_idx, vocab_size = tokenizer.pad_token_id, self.config.vocab_size
         self.vocab_size = vocab_size
