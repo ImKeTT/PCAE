@@ -184,12 +184,12 @@ def VAE_finetuning(args):
             losses.append(loss.detach().cpu().numpy())
             losses_rec.append(loss_rec.detach().cpu().numpy())
             losses_kl.append(loss_kl.detach().cpu().numpy())
+            total_iters += 1
             
         logger.info("Train Loss     : {:.4f}".format(np.mean(losses)))
         logger.info("Train Loss Rec : {:.4f}".format(np.mean(losses_rec)))
         logger.info("Train Loss KL. : {:.4f}".format(np.mean(losses_kl)))
-        val_loss = evaluate_vae(v_dataloader, model, tokenizer, device, logger)
-        total_iters += 1
+        val_loss = evaluate_vae(val_loader, vae, tokenizer, device, logger)
         
         if val_loss < best_val_loss:
             best_val_loss = val_loss

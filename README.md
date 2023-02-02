@@ -8,6 +8,7 @@ Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Au
 
 ## News
 
+- [2022-02-02] We are sharing fine-tuned BART VAE [here](https://drive.google.com/file/d/1hp_vm1rQIxWgCSkgm7cKtasGWxCG1kL8/view?usp=sharing) now!
 - [2022-10-10] Our paper is available on [arXiv](https://arxiv.org/abs/2210.03496) now.
 - [2022-09-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
 - [2022-09-27] We release our PCAE and baseline codes under the setup of pre-trained BART.
@@ -32,7 +33,7 @@ We conduct five tasks span from three datasets: *Yelp review*, *Titles* and *Yah
 We provide our full processed datasets in:
 
 -  [BaiduPan](https://pan.baidu.com/s/11vEqD_liL_U8brCEC6Nohg?pwd=bx81) (password `bx81`) 
-- [OneDrive](https://drive.google.com/file/d/1XDHN3rbXhl-dc_cqIFsQCd01pr6BiQjn/view?usp=sharing)
+- [GoogleDrive](https://drive.google.com/file/d/1XDHN3rbXhl-dc_cqIFsQCd01pr6BiQjn/view?usp=sharing)
 
 Please download `data.zip` and unzip it to the current folder.
 
@@ -41,6 +42,10 @@ You can also try your own data, follow the split in `data` folder. Note that, fo
 ## Training
 
 ### Stage 1 BART VAE Finetuning
+
+You can download full `./checkpoints` folder from [here](https://drive.google.com/file/d/1hp_vm1rQIxWgCSkgm7cKtasGWxCG1kL8/view?usp=sharing), unzip it to the current folder.
+
+Or you can train the BART VAE from the scratch: 
 
 Finetuning on three datasets. (choose DATA from `yelp`, `yahoo`, `titles`, and EPOCH from 8, 10, 10):
 
