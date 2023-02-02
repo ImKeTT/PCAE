@@ -194,7 +194,7 @@ def VAE_finetuning(args):
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             logger.info("Saving the Best Eval Weights..")
-            save_orderdict = model.state_dict()
+            save_orderdict = vae.state_dict()
             torch.save(save_orderdict, f"checkpoints/{dataname}/BART/best_val_vae_{args.zmanner}.pt")
 
 def Optimus_plugin_fintuning(args):
