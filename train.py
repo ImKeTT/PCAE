@@ -225,6 +225,7 @@ def Optimus_plugin_fintuning(args):
     config.lr = args.lr ## 1e-4
     config.epoch=args.plugin_train_epochs ## 28
     config.gen_k = args.gen_k ## 100
+    config.first_token_pooling = args.first_token_pooling
 
     tokenizer = BartTokenizer.from_pretrained(args.bart_version)
     model = BartForConditionalGeneration.from_pretrained(args.bart_version)
@@ -361,6 +362,7 @@ def PPVAE_plugin_training(args):
     config.gen_k = args.gen_k ## 300
     config.dim_bottle=args.ppvae_dim_bottle ## 25
     config.relax=args.ppvae_loss_relax ## 10.0
+    config.first_token_pooling = args.first_token_pooling
 
     tokenizer = BartTokenizer.from_pretrained(args.bart_version)
     model = BartForConditionalGeneration.from_pretrained(args.bart_version)
@@ -490,6 +492,7 @@ def PCAE_plugin_training(args):
     config.lr = args.lr ## 4e-4
     config.epoch=args.plugin_train_epochs ## 28
     config.gen_k = args.gen_k ## 100
+    config.first_token_pooling = args.first_token_pooling
 
     tokenizer = BartTokenizer.from_pretrained(args.bart_version)
     model = BartForConditionalGeneration.from_pretrained(args.bart_version)
