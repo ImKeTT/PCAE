@@ -8,7 +8,7 @@ Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Au
 
 ## News
 
-- [2022-03-02] We are sharing fine-tuned BART VAE [here](https://drive.google.com/file/d/1hp_vm1rQIxWgCSkgm7cKtasGWxCG1kL8/view?usp=sharing) now!
+- [2023-02-02] We are sharing fine-tuned BART VAE [here](https://drive.google.com/file/d/1hp_vm1rQIxWgCSkgm7cKtasGWxCG1kL8/view?usp=sharing) now!
 - [2022-10-10] Our paper is available on [arXiv](https://arxiv.org/abs/2210.03496) now.
 - [2022-09-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
 - [2022-09-27] We release our PCAE and baseline codes under the setup of pre-trained BART.
