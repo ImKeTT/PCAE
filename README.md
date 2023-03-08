@@ -8,12 +8,12 @@ Official PyTorch implementation of *[PCAE: A Framework of Plug-in Conditional Au
 
 ## News
 
-- [2022-02-02] We are sharing fine-tuned BART VAE [here](https://drive.google.com/file/d/1hp_vm1rQIxWgCSkgm7cKtasGWxCG1kL8/view?usp=sharing) now!
+- [2022-03-02] We are sharing fine-tuned BART VAE [here](https://drive.google.com/file/d/1hp_vm1rQIxWgCSkgm7cKtasGWxCG1kL8/view?usp=sharing) now!
 - [2022-10-10] Our paper is available on [arXiv](https://arxiv.org/abs/2210.03496) now.
 - [2022-09-27] Our paper is now in this [paper list](https://github.com/ImKeTT/CTG-latentAEs), which aims at collecting all kinds of latent variational auto-encoders that controllably generate texts. Feel free to check it out and contribute!
 - [2022-09-27] We release our PCAE and baseline codes under the setup of pre-trained BART.
 - [2022-09-06] Our work PCAE is [available](https://www.sciencedirect.com/science/article/pii/S0950705122008942) online.
-- [2022-08-21] Our paper PCAE is accepted by *Knowledge-Based Systems*.
+- [2022-08-21] Our paper PCAE is accepted to *Knowledge-Based Systems*.
 
 ## Setup
 
@@ -54,7 +54,7 @@ DATA=yelp
 EPOCH=8
 python train.py --run_mode vae_ft --dataset $DATA --zmanner hidden\
 --gpu 0 1 --dim_z 128 --per_gpu_train_batch_size 64\
---train_epochs $EPOCH --fb_mode 1 --lr 5e-4 --first_token_pooling
+--train_epochs $EPOCH --fb_mode 1 --lr 5e-4 --first_token_pooling --eval_every 500
 ```
 
 

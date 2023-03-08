@@ -23,6 +23,8 @@ parser.add_argument("--per_gpu_train_batch_size", default=42, type=int,
                     help="Batch size per GPU/CPU for training.")
 parser.add_argument("--per_gpu_eval_batch_size", default=5, type=int,
                     help="Batch size per GPU/CPU for evaluation.")
+parser.add_argument("--eval_every", default=500, type=int,
+                    help="eval step in finetuning.")
 parser.add_argument("--dim_label", default=8, type=int, help="Dim of label embedding layer")
 parser.add_argument("--zmanner", default='hidden', type=str, choices=['hidden', 'mem'])
 parser.add_argument("--dim_z", default=128, type=int, help="Dim of latent space")
@@ -86,32 +88,7 @@ def evaluate_vae(dataloader, model, tokenizer, device, logger):
     logger.info("Val Loss     : {:.4f}".format(np.mean(losses)))
     logger.info("Val Loss Rec : {:.4f}".format(np.mean(losses_rec)))
     logger.info("Val Loss KL. : {:.4f}".format(np.mean(losses_kl)))
-    return np.mean(losses_rec)
-
-def evaluate_pcae(dataloader, model, tokenizer, device, logger):
-    model.eval()
-    losses = []
-    losses_rec = []
-    losses_kl = []
-    for batch_id, (x, ylabel) in enumerate(tqdm(dataloader)):
-        out = tokenizer.batch_encode_plus(x, return_tensors="pt", padding=True)
-        pad_token_id = tokenizer.pad_token_id
-        y = out['input_ids']
-        y_ids = y[:, :-1].contiguous()
-        y_mask = out['attention_mask'][:, :-1]
-        lm_labels = y[:, 1:].clone()
-        lm_labels[y[:, 1:] == pad_token_id] = -100
-
-        loss_rec, loss_kl, loss = model(out['input_ids'].to(device), ylabel, lm_labels.to(device), out['attention_mask'].to(device), 
-                                        y_ids.to(device))
-        loss_rec, loss_kl, loss = loss_rec.mean(), loss_kl.mean(), loss.mean()
-        losses.append(loss.detach().cpu().numpy())
-        losses_rec.append(loss_rec.detach().cpu().numpy())
-        losses_kl.append(loss_kl.detach().cpu().numpy())
-
-    logger.info("Val Loss     : {:.4f}".format(np.mean(losses)))
-    logger.info("Val Loss Rec : {:.4f}".format(np.mean(losses_rec)))
-    logger.info("Val Loss KL. : {:.4f}".format(np.mean(losses_kl)))
+    model.train()
     return np.mean(losses_rec)
 
 def VAE_finetuning(args):
@@ -145,7 +122,6 @@ def VAE_finetuning(args):
     logger = Logger(log_file)
     train_data = read_txt(f"data/{dataname}/train.txt")
     val_data = read_txt(f"data/{dataname}/valid.txt")
-    test_data = read_txt(f"data/{dataname}/valid.txt")
 
     train_loader = DataLoader(train_data, batch_size=args.train_batch_size, pin_memory=True, drop_last=False, num_workers=args.workers, shuffle=True)
     iterations = args.train_epochs * len(train_loader)
@@ -167,6 +143,7 @@ def VAE_finetuning(args):
             beta = betas[total_iters]
             out = tokenizer.batch_encode_plus(texts, return_tensors="pt", padding=True)
             pad_token_id = tokenizer.pad_token_id
+            ## target and source input for VAE
             y = out['input_ids']
             y_ids = y[:, :-1].contiguous()
             y_mask = out['attention_mask'][:, :-1]
@@ -186,16 +163,22 @@ def VAE_finetuning(args):
             losses_kl.append(loss_kl.detach().cpu().numpy())
             total_iters += 1
             
-        logger.info("Train Loss     : {:.4f}".format(np.mean(losses)))
-        logger.info("Train Loss Rec : {:.4f}".format(np.mean(losses_rec)))
-        logger.info("Train Loss KL. : {:.4f}".format(np.mean(losses_kl)))
-        val_loss = evaluate_vae(val_loader, vae, tokenizer, device, logger)
-        
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            logger.info("Saving the Best Eval Weights..")
-            save_orderdict = vae.state_dict()
-            torch.save(save_orderdict, f"checkpoints/{dataname}/BART/best_val_vae_{args.zmanner}.pt")
+            ## eval the model in each epoch
+            if total_iters % args.eval_every==0:
+                logger.info("Train Loss     : {:.4f}".format(np.mean(losses)))
+                logger.info("Train Loss Rec : {:.4f}".format(np.mean(losses_rec)))
+                logger.info("Train Loss KL. : {:.4f}".format(np.mean(losses_kl)))
+                val_loss = evaluate_vae(val_loader, vae, tokenizer, device, logger)
+                ## reset training loss lists
+                losses = []
+                losses_rec = []
+                losses_kl = []
+                
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    logger.info("Saving the Best Eval Weights..")
+                    save_orderdict = vae.state_dict()
+                    torch.save(save_orderdict, f"checkpoints/{dataname}/BART/best_val_vae_{args.zmanner}.pt")
 
 def Optimus_plugin_fintuning(args):
     gpu = not args.no_gpu
@@ -253,7 +236,6 @@ def Optimus_plugin_fintuning(args):
 
     ## Model training
     model.train()
-    best_val_loss = 99999.
     total_iters = 0
     for e in range(config.epoch):
         losses = []
@@ -283,12 +265,12 @@ def Optimus_plugin_fintuning(args):
             losses_rec.append(loss_rec.detach().cpu().numpy())
             losses_kl.append(loss_kl.detach().cpu().numpy())
             losses_lsd.append(loss_lsd.detach().cpu().numpy())
+            total_iters += 1
             
         logger.info("Train Loss     : {:.4f}".format(np.mean(losses)))
         logger.info("Train Loss Rec : {:.4f}".format(np.mean(losses_rec)))
         logger.info("Train Loss KL. : {:.4f}".format(np.mean(losses_kl)))
         logger.info("Train Loss LSD : {:.4f}".format(np.mean(losses_lsd)))
-        total_iters += 1
 
     ## Generation
     os.makedirs(f"bart_result/optimus/sentences/{dataset}/{args.task}", exist_ok=True)
@@ -392,7 +374,6 @@ def PPVAE_plugin_training(args):
     logger = Logger(log_file)
 
     model.train()
-    best_val_loss = 99999.
     total_iters = 0
     for e in range(config.epoch):
         losses = []
@@ -436,12 +417,12 @@ def PPVAE_plugin_training(args):
             losses_z_rec.append(loss_z_rec.detach().cpu().numpy())
             losses_rec.append(loss_rec.detach().cpu().numpy())
             losses_kl.append(loss_kl.detach().cpu().numpy())
+            total_iters += 1
             
         logger.info("Train Loss       : {:.4f}".format(np.mean(losses)))
         logger.info("Train Loss z Rec : {:.4f}".format(np.mean(losses_z_rec)))
         logger.info("Train Loss Rec   : {:.4f}".format(np.mean(losses_rec)))
         logger.info("Train Loss KL.   : {:.4f}".format(np.mean(losses_kl)))
-        total_iters += 1
 
     ## Generation
     os.makedirs(f"bart_result/ppvae/sentences/{dataset}/{args.task}", exist_ok=True)
@@ -519,7 +500,6 @@ def PCAE_plugin_training(args):
     logger = Logger(log_file)
 
     model.train()
-    best_val_loss = 99999.
     total_iters = 0
     for e in range(config.epoch):
         losses = []
@@ -547,11 +527,11 @@ def PCAE_plugin_training(args):
             losses.append(loss.detach().cpu().numpy())
             losses_rec.append(loss_rec.detach().cpu().numpy())
             losses_kl.append(loss_kl.detach().cpu().numpy())
+            total_iters += 1
             
         logger.info("Train Loss     : {:.4f}".format(np.mean(losses)))
         logger.info("Train Loss Rec : {:.4f}".format(np.mean(losses_rec)))
         logger.info("Train Loss KL. : {:.4f}".format(np.mean(losses_kl)))
-        total_iters += 1
 
     ## generation
     os.makedirs(f"bart_result/pcae/sentences/{dataset}/{args.task}", exist_ok=True)
