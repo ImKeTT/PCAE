@@ -153,13 +153,13 @@ def VAE_finetuning(args):
     betas = frange_cycle_zero_linear(iterations, start=0.0, stop=1.0,  n_cycle=4, 
                                      ratio_increase=0.2, ratio_zero=0.1)
     val_loader = DataLoader(val_data, batch_size=args.eval_batch_size, pin_memory=True, drop_last=False, num_workers=args.workers, shuffle=True)
-    optimizer = AdamW(model.parameters(), lr=args.lr, correct_bias=True)
+    optimizer = AdamW(vae.parameters(), lr=args.lr, correct_bias=True)
 
     ## Fine-tuning
     best_val_loss = 99999.
     total_iters = 0
     for e in range(args.train_epochs):
-        model.train()
+        vae.train()
         losses = []
         losses_rec = []
         losses_kl = []
