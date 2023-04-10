@@ -54,7 +54,7 @@ DATA=yelp
 EPOCH=8
 python train.py --run_mode vae_ft --dataset $DATA --zmanner hidden\
 --gpu 0 1 --dim_z 128 --per_gpu_train_batch_size 64\
---train_epochs $EPOCH --fb_mode 1 --lr 5e-4 --first_token_pooling --eval_every 500
+--train_epochs $EPOCH --fb_mode 1 --lr 1e-4 --first_token_pooling --eval_every 500
 ```
 
 
